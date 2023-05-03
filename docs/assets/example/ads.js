@@ -30,9 +30,6 @@ var art = new Artplayer({
 // Whether the ads is playing
 // art.plugins.artplayerPluginAds.playing;
 
-// Whether the ads is playing
-// art.plugins.artplayerPluginAds.playing;
-
 // The ads currentTime
 // art.plugins.artplayerPluginAds.currentTime;
 
