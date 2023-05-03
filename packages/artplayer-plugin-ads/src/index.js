@@ -11,6 +11,7 @@ export default function artplayerPluginAds(option) {
         let $video = null;
         let $control = null;
         let blobUrl = null;
+        let playing = false;
 
         function skip() {
             pause();
@@ -25,6 +26,7 @@ export default function artplayerPluginAds(option) {
             if (art.playing) art.pause();
 
             try {
+                playing = true;
                 await $video.play();
             } catch (error) {
                 $video.muted = true;
@@ -35,6 +37,7 @@ export default function artplayerPluginAds(option) {
         }
 
         function pause() {
+            playing = false;
             $video.pause();
             art.emit('artplayerPluginAds:pause');
         }
@@ -77,7 +80,10 @@ export default function artplayerPluginAds(option) {
             art.proxy($video, 'error', skip);
             art.proxy($video, 'canplay', play);
             art.proxy($video, 'timeupdate', update);
-            art.proxy($video, 'click', () => art.emit('artplayerPluginAds:click'));
+            art.proxy($video, 'click', () => {
+                playing ? pause() : play();
+                art.emit('artplayerPluginAds:click');
+            });
 
             return $video;
         }
@@ -89,7 +95,7 @@ export default function artplayerPluginAds(option) {
                 position: 'absolute',
                 zIndex: 10,
                 right: '0px',
-                bottom: '50px',
+                bottom: '30px',
                 lineHeight: 1,
                 padding: '5px 8px',
                 border: '1px solid #fff',
@@ -147,6 +153,9 @@ export default function artplayerPluginAds(option) {
             skip,
             pause,
             play,
+            get playing() {
+                return playing;
+            },
             get $ads() {
                 return $ads;
             },

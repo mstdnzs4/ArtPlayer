@@ -20,7 +20,17 @@ var art = new Artplayer({
 
             // When the ads is mounted
             mounted($ads, $video) {
-                //
+                // Skip the ads
+                // this.skip();
+
+                // Play the ads
+                // this.play();
+
+                // Pause the ads
+                // this.pause();
+
+                // Whether the ads is playing
+                // this.playing;
             }
         }),
     ],
@@ -34,6 +44,9 @@ var art = new Artplayer({
 
 // Pause the ads
 // art.plugins.artplayerPluginAds.pause();
+
+// Whether the ads is playing
+// art.plugins.artplayerPluginAds.playing;
 
 // When the ads is clicked
 art.on('artplayerPluginAds:click', () => {

@@ -44,6 +44,11 @@ type Ads = {
     play: () => void;
 
     /**
+     * Whether the ads is playing
+     */
+    playing: boolean;
+
+    /**
      * The ads element
      */
     $ads: null | HTMLDivElement;
