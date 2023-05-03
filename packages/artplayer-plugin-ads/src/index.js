@@ -9,6 +9,7 @@ export default function artplayerPluginAds(option) {
 
         let $ads = null;
         let $video = null;
+        let $control = null;
         let blobUrl = null;
 
         function skip() {
@@ -19,12 +20,17 @@ export default function artplayerPluginAds(option) {
         }
 
         async function play() {
+            setStyles($ads, { display: null });
+
+            if (art.playing) art.pause();
+
             try {
                 await $video.play();
             } catch (error) {
                 $video.muted = true;
                 $video.play();
             }
+
             art.emit('artplayerPluginAds:play');
         }
 
@@ -42,6 +48,7 @@ export default function artplayerPluginAds(option) {
 
         function createAds() {
             const $ads = append($player, '<div></div>');
+
             setStyles($ads, {
                 position: 'absolute',
                 zIndex: '150',
@@ -51,6 +58,7 @@ export default function artplayerPluginAds(option) {
                 overflow: 'hidden',
                 backgroundColor: '#000',
             });
+
             return $ads;
         }
 
@@ -59,12 +67,53 @@ export default function artplayerPluginAds(option) {
                 $ads,
                 `<video src="${blobUrl || option.url}" poster="${blobUrl ? '' : option.poster}" loop playsInline />`,
             );
+
             setStyles($video, {
                 width: '100%',
                 height: '100%',
                 objectFit: 'contain',
             });
+
+            art.proxy($video, 'error', skip);
+            art.proxy($video, 'canplay', play);
+            art.proxy($video, 'timeupdate', update);
+            art.proxy($video, 'click', () => art.emit('artplayerPluginAds:click'));
+
             return $video;
+        }
+
+        function createControl($ads) {
+            const $control = append($ads, `<div>5</div>`);
+
+            setStyles($control, {
+                position: 'absolute',
+                zIndex: 10,
+                right: '0px',
+                bottom: '50px',
+                lineHeight: 1,
+                padding: '5px 8px',
+                border: '1px solid #fff',
+                backgroundColor: '#000',
+                borderRight: 'none',
+                fontSize: '15px',
+                opacity: '0.5',
+            });
+
+            art.events.hover(
+                $control,
+                () => {
+                    setStyles($control, {
+                        opacity: '1',
+                    });
+                },
+                () => {
+                    setStyles($control, {
+                        opacity: '0.5',
+                    });
+                },
+            );
+
+            return $control;
         }
 
         function init() {
@@ -72,13 +121,12 @@ export default function artplayerPluginAds(option) {
             art.pause();
             $ads = createAds();
             $video = createVideo($ads);
-            art.proxy($video, 'error', skip);
-            art.proxy($video, 'ended', skip);
-            art.proxy($video, 'canplay', play);
-            art.proxy($video, 'timeupdate', update);
-            art.proxy($video, 'click', () => art.emit('artplayerPluginAds:click'));
-            art.proxy(document, 'visibilitychange', () => (document.hidden ? pause() : play()));
-            art.emit('artplayerPluginAds:init', { $ads, $video });
+            $control = createControl($ads);
+            art.emit('artplayerPluginAds:mounted', { $ads, $video, $control });
+
+            if (option.mounted) {
+                option.mounted.call(art.plugins.artplayerPluginAds, $ads, $video, $control);
+            }
         }
 
         art.on('ready', () => {
@@ -104,6 +152,9 @@ export default function artplayerPluginAds(option) {
             },
             get $video() {
                 return $video;
+            },
+            get $control() {
+                return $control;
             },
         };
     };

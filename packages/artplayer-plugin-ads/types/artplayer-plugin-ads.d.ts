@@ -42,6 +42,21 @@ type Ads = {
      * Play the ads
      */
     play: () => void;
+
+    /**
+     * The ads element
+     */
+    $ads: null | HTMLDivElement;
+
+    /**
+     * The video element
+     */
+    $video: null | HTMLVideoElement;
+
+    /**
+     * The control element
+     */
+    $control: null | HTMLDivElement;
 };
 
 declare const artplayerPluginAds: (option: Option) => (art: Artplayer) => Ads;

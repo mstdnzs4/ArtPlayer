@@ -17,16 +17,55 @@ var art = new Artplayer({
 
             // Whether to preload the video
             preload: true,
+
+            // When the ads is mounted
+            mounted($ads, $video) {
+                //
+            }
         }),
     ],
 });
 
-// Ads is clicked
+// Skip the ads
+// art.plugins.artplayerPluginAds.skip();
+
+// Play the ads
+// art.plugins.artplayerPluginAds.play();
+
+// Pause the ads
+// art.plugins.artplayerPluginAds.pause();
+
+// When the ads is clicked
 art.on('artplayerPluginAds:click', () => {
     console.info('Ads is clicked');
 });
 
-// Ads is skipped
+// When the ads is skipped
 art.on('artplayerPluginAds:skip', () => {
     console.info('Ads is skipped');
+});
+
+// When the ads is play
+art.on('artplayerPluginAds:play', () => {
+    console.info('Ads is play');
+});
+
+// When the ads is pause
+art.on('artplayerPluginAds:pause', () => {
+    console.info('Ads is pause');
+});
+
+// When the ads is update
+art.on('artplayerPluginAds:update', (args) => {
+    console.info('Ads is update', args);
+});
+
+// When the ads is mounted
+art.on('artplayerPluginAds:mounted', (args) => {
+    console.info('Ads is mounted', args);
+});
+
+// When the ads is preload
+art.on('artplayerPluginAds:preload', (args) => {
+    console.info('Ads is preload', args);
 });
