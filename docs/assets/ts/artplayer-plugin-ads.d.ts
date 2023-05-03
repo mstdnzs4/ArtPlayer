@@ -5,48 +5,68 @@ export as namespace artplayerPluginAds;
 
 type Option = {
     /**
-     * 广告源文本，支持视频链接、图片链接、HTML文本
+     * The ads video url
      */
-    source: string;
+    url: string;
 
     /**
-     * 知名广告的类型：'video' | 'image' | 'html'
+     * The ads poster url
      */
-    type: 'video' | 'image' | 'html';
+    poster?: string;
 
     /**
-     * 广告必看的时长，单位为秒
+     * The must-watch duration of the video, in seconds
      */
-    playDuration?: number;
+    played?: number;
 
     /**
-     * 广告总的时长，单位为秒
+     * Whether to preload the video
      */
-    totalDuration?: number;
+    preload?: boolean;
 
     /**
-     * 视频广告是否默认静音
+     * When the ads is mounted
      */
-    muted?: boolean;
+    mounted?(this: Ads, $ads: HTMLDivElement, $video: HTMLVideoElement): void;
 };
 
 type Ads = {
     name: 'artplayerPluginAds';
 
     /**
-     * 跳过广告
+     * Skip the ads
      */
     skip: () => void;
 
     /**
-     * 暂停广告
+     * Stop the ads
      */
     pause: () => void;
 
     /**
-     * 播放广告
+     * Play the ads
      */
     play: () => void;
+
+    /**
+     * Whether the ads is playing
+     */
+    playing: boolean;
+
+    /**
+     * The ads element
+     */
+    $ads: null | HTMLDivElement;
+
+    /**
+     * The video element
+     */
+    $video: null | HTMLVideoElement;
+
+    /**
+     * The control element
+     */
+    $control: null | HTMLDivElement;
 };
 
 declare const artplayerPluginAds: (option: Option) => (art: Artplayer) => Ads;

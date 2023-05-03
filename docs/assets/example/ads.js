@@ -12,26 +12,8 @@ var art = new Artplayer({
             // The ads poster url
             poster: '/assets/sample/test.png',
 
-            // The must-watch seconds of the video
-            played: 5,
-
             // Whether to preload the video
             preload: true,
-
-            // When the ads is mounted
-            mounted($ads, $video) {
-                // Skip the ads
-                // this.skip();
-
-                // Play the ads
-                // this.play();
-
-                // Pause the ads
-                // this.pause();
-
-                // Whether the ads is playing
-                // this.playing;
-            }
         }),
     ],
 });
@@ -47,6 +29,15 @@ var art = new Artplayer({
 
 // Whether the ads is playing
 // art.plugins.artplayerPluginAds.playing;
+
+// Whether the ads is playing
+// art.plugins.artplayerPluginAds.playing;
+
+// The ads currentTime
+// art.plugins.artplayerPluginAds.currentTime;
+
+// The ads duration
+// art.plugins.artplayerPluginAds.duration;
 
 // When the ads is clicked
 art.on('artplayerPluginAds:click', () => {
@@ -69,13 +60,13 @@ art.on('artplayerPluginAds:pause', () => {
 });
 
 // When the ads is update
-art.on('artplayerPluginAds:update', (args) => {
-    console.info('Ads is update', args);
+art.on('artplayerPluginAds:update', () => {
+    console.info('Ads is update');
 });
 
 // When the ads is mounted
-art.on('artplayerPluginAds:mounted', (args) => {
-    console.info('Ads is mounted', args);
+art.on('artplayerPluginAds:mounted', () => {
+    console.info('Ads is mounted');
 });
 
 // When the ads is preload

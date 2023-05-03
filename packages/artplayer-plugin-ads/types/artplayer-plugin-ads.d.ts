@@ -15,11 +15,6 @@ type Option = {
     poster?: string;
 
     /**
-     * The must-watch duration of the video, in seconds
-     */
-    played?: number;
-
-    /**
      * Whether to preload the video
      */
     preload?: boolean;
@@ -49,6 +44,16 @@ type Ads = {
     playing: boolean;
 
     /**
+     * The ads currentTime
+     */
+    currentTime: number;
+
+    /**
+     * The ads duration
+     */
+    duration: number;
+
+    /**
      * The ads element
      */
     $ads: null | HTMLDivElement;
@@ -57,11 +62,6 @@ type Ads = {
      * The video element
      */
     $video: null | HTMLVideoElement;
-
-    /**
-     * The control element
-     */
-    $control: null | HTMLDivElement;
 };
 
 declare const artplayerPluginAds: (option: Option) => (art: Artplayer) => Ads;

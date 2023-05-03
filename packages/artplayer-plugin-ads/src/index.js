@@ -9,9 +9,10 @@ export default function artplayerPluginAds(option) {
 
         let $ads = null;
         let $video = null;
-        let $control = null;
         let blobUrl = null;
         let playing = false;
+        let currentTime = 0;
+        let duration = 0;
 
         function skip() {
             pause();
@@ -43,10 +44,9 @@ export default function artplayerPluginAds(option) {
         }
 
         function update() {
-            art.emit('artplayerPluginAds:update', {
-                currentTime: $video.currentTime,
-                duration: $video.duration,
-            });
+            currentTime = $video.currentTime;
+            duration = $video.duration;
+            art.emit('artplayerPluginAds:update');
         }
 
         function createAds() {
@@ -88,51 +88,12 @@ export default function artplayerPluginAds(option) {
             return $video;
         }
 
-        function createControl($ads) {
-            const $control = append($ads, `<div>5</div>`);
-
-            setStyles($control, {
-                position: 'absolute',
-                zIndex: 10,
-                right: '0px',
-                bottom: '30px',
-                lineHeight: 1,
-                padding: '5px 8px',
-                border: '1px solid #fff',
-                backgroundColor: '#000',
-                borderRight: 'none',
-                fontSize: '15px',
-                opacity: '0.5',
-            });
-
-            art.events.hover(
-                $control,
-                () => {
-                    setStyles($control, {
-                        opacity: '1',
-                    });
-                },
-                () => {
-                    setStyles($control, {
-                        opacity: '0.5',
-                    });
-                },
-            );
-
-            return $control;
-        }
-
         function init() {
             if ($ads || !option.url) return;
             art.pause();
             $ads = createAds();
             $video = createVideo($ads);
-            $control = createControl($ads);
-            art.emit('artplayerPluginAds:mounted', { $ads, $video, $control });
-
-            if (option.mounted) {
-                option.mounted.call(art.plugins.artplayerPluginAds, $ads, $video, $control);
-            }
+            art.emit('artplayerPluginAds:mounted');
         }
 
         art.on('ready', () => {
@@ -156,14 +117,17 @@ export default function artplayerPluginAds(option) {
             get playing() {
                 return playing;
             },
+            get currentTime() {
+                return currentTime;
+            },
+            get duration() {
+                return duration;
+            },
             get $ads() {
                 return $ads;
             },
             get $video() {
                 return $video;
-            },
-            get $control() {
-                return $control;
             },
         };
     };
