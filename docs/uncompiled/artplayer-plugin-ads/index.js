@@ -142,204 +142,110 @@
       this[globalName] = mainExports;
     }
   }
-})({"gEVO5":[function(require,module,exports) {
+})({"3H9sA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-var _styleLess = require("bundle-text:./style.less");
-var _styleLessDefault = parcelHelpers.interopDefault(_styleLess);
 function artplayerPluginAds(option) {
     return (art)=>{
-        const { template: { $player  } , icons: { volume , volumeClose , fullscreenOn , fullscreenOff , loading  } , constructor: { validator , utils: { query , append , setStyle  } ,  } ,  } = art;
-        option = validator({
-            html: "",
-            video: "",
-            url: "",
-            playDuration: 5,
-            totalDuration: 10,
-            muted: false,
-            i18n: {
-                close: "\u5173\u95ED\u5E7F\u544A",
-                countdown: "%s\u79D2",
-                detail: "\u67E5\u770B\u8BE6\u60C5",
-                canBeClosed: "%s\u79D2\u540E\u53EF\u5173\u95ED\u5E7F\u544A"
-            },
-            ...option
-        }, {
-            html: "?string",
-            video: "?string",
-            url: "?string",
-            playDuration: "number",
-            totalDuration: "number",
-            muted: "?boolean",
-            i18n: {
-                close: "string",
-                countdown: "string",
-                detail: "string",
-                canBeClosed: "string"
-            }
-        });
+        const { template: { $player  } , constructor: { utils: { append , setStyles  }  }  } = art;
         let $ads = null;
-        let $timer = null;
-        let $close = null;
-        let $countdown = null;
-        let $control = null;
-        let $loading = null;
-        let time = 0;
-        let timer = null;
-        let isEnd = false;
-        let isInit = false;
-        let isCanClose = false;
-        function getI18n(val, str) {
-            return str.replace("%s", val);
-        }
+        let $video = null;
+        let blobUrl = null;
         function skip() {
-            isEnd = true;
+            pause();
             art.play();
-            if (option.video) $ads.pause();
-            setStyle(art.template.$ads, "display", "none");
-            art.emit("artplayerPluginAds:skip", option);
+            setStyles($ads, {
+                display: "none"
+            });
+            art.emit("artplayerPluginAds:skip");
         }
-        function play() {
-            if (isEnd) return;
-            timer = setTimeout(()=>{
-                time += 1;
-                const playDuration = option.playDuration - time;
-                if (playDuration >= 1) $close.innerHTML = getI18n(playDuration, option.i18n.canBeClosed);
-                else {
-                    $close.innerHTML = option.i18n.close;
-                    if (!isCanClose) isCanClose = true;
-                }
-                $countdown.innerHTML = getI18n(option.totalDuration - time, option.i18n.countdown);
-                if (time >= option.totalDuration) skip();
-                else play();
-            }, 1000);
+        async function play() {
+            try {
+                await $video.play();
+            } catch (error) {
+                $video.muted = true;
+                $video.play();
+            }
+            art.emit("artplayerPluginAds:play");
         }
         function pause() {
-            if (isEnd) return;
-            clearTimeout(timer);
+            $video.pause();
+            art.emit("artplayerPluginAds:pause");
         }
-        function show() {
-            art.template.$ads = append($player, '<div class="artplayer-plugin-ads"></div>');
-            $ads = append(art.template.$ads, option.video ? `<video class="artplayer-plugin-ads-video" src="${option.video}" loop playsInline></video>` : `<div class="artplayer-plugin-ads-html">${option.html}</div>`);
-            $loading = append(art.template.$ads, '<div class="artplayer-plugin-ads-loading"></div>');
-            append($loading, loading);
-            $timer = append(art.template.$ads, `<div class="artplayer-plugin-ads-timer">
-                    <div class="artplayer-plugin-ads-close">${option.playDuration <= 0 ? option.i18n.close : getI18n(option.playDuration, option.i18n.canBeClosed)}</div>
-                    <div class="artplayer-plugin-ads-countdown">${getI18n(option.totalDuration, option.i18n.countdown)}</div>
-                </div>`);
-            $close = query(".artplayer-plugin-ads-close", $timer);
-            $countdown = query(".artplayer-plugin-ads-countdown", $timer);
-            if (option.playDuration >= option.totalDuration) setStyle($close, "display", "none");
-            art.proxy($close, "click", ()=>{
-                if (isCanClose) skip();
+        function update() {
+            art.emit("artplayerPluginAds:update", {
+                currentTime: $video.currentTime,
+                duration: $video.duration
             });
-            $control = append(art.template.$ads, `<div class="artplayer-plugin-ads-control">
-                    <div class="artplayer-plugin-ads-detail">${option.i18n.detail}</div>
-                    <div class="artplayer-plugin-ads-muted"></div>
-                    <div class="artplayer-plugin-ads-fullscreen"></div>
-                </div>`);
-            const $detail = query(".artplayer-plugin-ads-detail", $control);
-            const $muted = query(".artplayer-plugin-ads-muted", $control);
-            const $fullscreen = query(".artplayer-plugin-ads-fullscreen", $control);
-            if (option.url) art.proxy($detail, "click", ()=>{
-                window.open(option.url);
-                art.emit("artplayerPluginAds:click", option);
+        }
+        function createAds() {
+            const $ads = append($player, "<div></div>");
+            setStyles($ads, {
+                position: "absolute",
+                zIndex: "150",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                overflow: "hidden",
+                backgroundColor: "#000"
             });
-            else setStyle($detail, "display", "none");
-            if (option.video) {
-                const $volume = append($muted, volume);
-                const $volumeClose = append($muted, volumeClose);
-                setStyle($volumeClose, "display", "none");
-                // If the ad was set to muted initially, match the icon
-                if (option.muted) {
-                    $ads.muted = true;
-                    setStyle($volume, "display", "none");
-                    setStyle($volumeClose, "display", "inline-flex");
-                }
-                art.proxy($muted, "click", ()=>{
-                    $ads.muted = !$ads.muted;
-                    if ($ads.muted) {
-                        setStyle($volume, "display", "none");
-                        setStyle($volumeClose, "display", "inline-flex");
-                    } else {
-                        setStyle($volume, "display", "inline-flex");
-                        setStyle($volumeClose, "display", "none");
-                    }
-                });
-            } else setStyle($muted, "display", "none");
-            const $fullscreenOn = append($fullscreen, fullscreenOn);
-            const $fullscreenOff = append($fullscreen, fullscreenOff);
-            setStyle($fullscreenOff, "display", "none");
-            art.proxy($fullscreen, "click", ()=>{
-                art.fullscreen = !art.fullscreen;
-                if (art.fullscreen) {
-                    setStyle($fullscreenOn, "display", "inline-flex");
-                    setStyle($fullscreenOff, "display", "none");
-                } else {
-                    setStyle($fullscreenOn, "display", "none");
-                    setStyle($fullscreenOff, "display", "inline-flex");
-                }
+            return $ads;
+        }
+        function createVideo($ads) {
+            const $video = append($ads, `<video src="${blobUrl || option.url}" poster="${blobUrl ? "" : option.poster}" loop playsInline />`);
+            setStyles($video, {
+                width: "100%",
+                height: "100%",
+                objectFit: "contain"
             });
-            art.proxy($ads, "click", ()=>{
-                if (option.url) window.open(option.url);
-                art.emit("artplayerPluginAds:click", option);
-            });
+            return $video;
         }
         function init() {
-            if (isInit) return;
-            isInit = true;
-            show();
+            if ($ads || !option.url) return;
             art.pause();
-            if (option.video) {
-                art.proxy($ads, "error", skip);
-                art.proxy($ads, "loadedmetadata", ()=>{
-                    play();
-                    $ads.play();
-                    setStyle($timer, "display", "flex");
-                    setStyle($control, "display", "flex");
-                    setStyle($loading, "display", "none");
-                });
-            } else {
-                play();
-                setStyle($timer, "display", "flex");
-                setStyle($control, "display", "flex");
-                setStyle($loading, "display", "none");
-            }
-            art.proxy(document, "visibilitychange", ()=>{
-                if (document.hidden) pause();
-                else play();
+            $ads = createAds();
+            $video = createVideo($ads);
+            art.proxy($video, "error", skip);
+            art.proxy($video, "ended", skip);
+            art.proxy($video, "canplay", play);
+            art.proxy($video, "timeupdate", update);
+            art.proxy($video, "click", ()=>art.emit("artplayerPluginAds:click"));
+            art.proxy(document, "visibilitychange", ()=>document.hidden ? pause() : play());
+            art.emit("artplayerPluginAds:init", {
+                $ads,
+                $video
             });
         }
         art.on("ready", ()=>{
             art.once("play", init);
-            art.once("video:playing", init);
+            art.once("video:timeupdate", init);
         });
+        if (option.preload) (async function preload() {
+            const blob = await (await fetch(option.url)).blob();
+            blobUrl = URL.createObjectURL(blob);
+            art.emit("artplayerPluginAds:preload", blobUrl);
+        })();
         return {
             name: "artplayerPluginAds",
             skip,
             pause,
-            play
+            play,
+            get $ads () {
+                return $ads;
+            },
+            get $video () {
+                return $video;
+            }
         };
     };
 }
 exports.default = artplayerPluginAds;
 artplayerPluginAds.env = "development";
-artplayerPluginAds.version = "1.0.5";
-artplayerPluginAds.build = "1659407621565";
-if (typeof document !== "undefined") {
-    if (!document.getElementById("artplayer-plugin-ads")) {
-        const $style = document.createElement("style");
-        $style.id = "artplayer-plugin-ads";
-        $style.textContent = (0, _styleLessDefault.default);
-        document.head.appendChild($style);
-    }
-}
+artplayerPluginAds.version = "2.0.0";
+artplayerPluginAds.build = "2023-05-03 15:02:34";
 if (typeof window !== "undefined") window["artplayerPluginAds"] = artplayerPluginAds;
 
-},{"bundle-text:./style.less":"1ZB0H","@parcel/transformer-js/src/esmodule-helpers.js":"8MjWm"}],"1ZB0H":[function(require,module,exports) {
-module.exports = ".artplayer-plugin-ads {\n  z-index: 150;\n  width: 100%;\n  height: 100%;\n  color: #fff;\n  background-color: #000;\n  font-size: 13px;\n  line-height: 1;\n  position: absolute;\n  inset: 0;\n  overflow: hidden;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-html {\n  width: 100%;\n  height: 100%;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-video {\n  width: 100%;\n  height: 100%;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-timer {\n  display: none;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-timer > div {\n  cursor: pointer;\n  background-color: #00000080;\n  border-radius: 15px;\n  align-items: center;\n  margin-left: 5px;\n  padding: 5px 10px;\n  display: flex;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-control {\n  display: none;\n  position: absolute;\n  bottom: 10px;\n  right: 10px;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-control > div {\n  cursor: pointer;\n  background-color: #00000080;\n  border-radius: 15px;\n  align-items: center;\n  margin-left: 5px;\n  padding: 5px 10px;\n  display: flex;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-control .art-icon svg {\n  width: 20px;\n  height: 20px;\n}\n\n.artplayer-plugin-ads .artplayer-plugin-ads-loading {\n  width: 100%;\n  height: 100%;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n  position: absolute;\n  inset: 0;\n}\n\n";
-
-},{}],"8MjWm":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"5dUr6"}],"5dUr6":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -369,6 +275,6 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}]},["gEVO5"], "gEVO5", "parcelRequirea5da")
+},{}]},["3H9sA"], "3H9sA", "parcelRequire4dc0")
 
 //# sourceMappingURL=index.js.map

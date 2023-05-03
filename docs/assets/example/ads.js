@@ -6,40 +6,27 @@ var art = new Artplayer({
     fullscreenWeb: true,
     plugins: [
         artplayerPluginAds({
-            // html广告，假如是视频广告则忽略该值
-            html: '<img src="/assets/sample/poster.jpg">',
+            // The ads video url
+            url: '/assets/sample/test1.mp4',
 
-            // 视频广告的地址
-            video: '/assets/sample/test1.mp4',
+            // The ads poster url
+            poster: '/assets/sample/test.png',
 
-            // 广告跳转网址，为空则不跳转
-            url: 'http://artplayer.org',
+            // The must-watch seconds of the video
+            played: 5,
 
-            // 必须观看的时长，期间不能被跳过，单位为秒
-            // 当该值大于或等于totalDuration时，不能提前关闭广告
-            // 当该值等于或小于0时，则随时都可以关闭广告
-            playDuration: 5,
-
-            // 广告总时长，单位为秒
-            totalDuration: 10,
-
-            // 多语言支持
-            i18n: {
-                close: '关闭广告',
-                countdown: '%s秒',
-                detail: '查看详情',
-                canBeClosed: '%s秒后可关闭广告',
-            },
+            // Whether to preload the video
+            preload: true,
         }),
     ],
 });
 
-// 广告被点击
-art.on('artplayerPluginAds:click', (ads) => {
-    console.info('广告被点击', ads);
+// Ads is clicked
+art.on('artplayerPluginAds:click', () => {
+    console.info('Ads is clicked');
 });
 
-// 广告被跳过
-art.on('artplayerPluginAds:skip', (ads) => {
-    console.info('广告被跳过', ads);
+// Ads is skipped
+art.on('artplayerPluginAds:skip', () => {
+    console.info('Ads is skipped');
 });
